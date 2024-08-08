@@ -1,18 +1,16 @@
 import os
 import sys
 
-arg_list = []
-
-for arg in sys.argv:
-	arg_list.append(arg)
+arg_list = sys.argv
 
 working_directory = arg_list[1]
 
-#make a directory for the transposon outputs
-os.system(f"cd {working_directory} | mkdir transposons")
+# Make a directory for the transposon outputs if it doesn't exist
+transposons_dir = os.path.join(working_directory, "transposons")
+os.makedirs(transposons_dir, exist_ok=True)
 
-#make the sample list, only forward reads
-os.system(f"ls {working_directory}/fastq/*R1_001.fastq.gz > {working_directory}/transposons/sample_list.txt") 
+# Make the sample list, only forward reads
+os.system(f"ls {working_directory}/fastq/*R1_001.fastq.gz > {transposons_dir}/sample_list.txt")
 
 forward_read_list = open(f"{working_directory}/transposons/sample_list.txt", "r")
 
