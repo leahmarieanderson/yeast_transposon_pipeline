@@ -8,10 +8,13 @@ for arg in sys.argv:
 
 working_directory = arg_list[1]
 
-#make the sample list, only forward reads
-os.system("ls " + working_directory + "/fastq/*R1_001.fastq.gz > sample_list.txt") 
+#make a directory for the transposon outputs
+os.system(f"cd {working_directory} | mkdir transposons")
 
-forward_read_list = open("sample_list.txt", "r")
+#make the sample list, only forward reads
+os.system(f"ls {working_directory}/fastq/*R1_001.fastq.gz > {working_directory}/transposons/sample_list.txt") 
+
+forward_read_list = open(f"{working_directory}/transposons/sample_list.txt", "r")
 
 #iterate through the sample list; run transposon pipeline
 for fastq in forward_read_list:
