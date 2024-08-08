@@ -16,11 +16,11 @@ source ${CONDA_BASE}/etc/profile.d/conda.sh
 conda activate mcclintock
 
 #run mcclintock with your samples
-python3 /net/dunham/vol2/Leah/230127_FTevo/transposons/mcclintock/mcclintock.py \
-	-r /net/dunham/vol2/Leah/230127_FTevo/transposons/mcclintock/test/sacCer2.fasta \
-	-c /net/dunham/vol2/Leah/230127_FTevo/transposons/mcclintock/test/sac_cer_TE_seqs.fasta \
-	-g /net/dunham/vol2/Leah/230127_FTevo/transposons/mcclintock/test/reference_TE_locations.gff \
-	-t /net/dunham/vol2/Leah/230127_FTevo/transposons/mcclintock/test/sac_cer_te_families.tsv \
+python3 /net/gs/vol1/home/leaha3/mcclintock/mcclintock.py \
+	-r /net/gs/vol1/home/leaha3/mcclintock/test/sacCer2.fasta \
+	-c /net/gs/vol1/home/leaha3/mcclintock/test/sac_cer_TE_seqs.fasta \
+	-g /net/gs/vol1/home/leaha3/mcclintock/test/reference_TE_locations.gff \
+	-t /net/gs/vol1/home/leaha3/mcclintock/test/sac_cer_te_families.tsv \
 	-1 ${FORWARD} \
 	-2 ${REVERSE} 
 
