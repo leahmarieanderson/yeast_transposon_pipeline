@@ -2,7 +2,7 @@
 #$ -pe serial 5
 #$ -l mfree=16G
 #$ -l h_rt=10:0:0
-#$ -N test2_CP1C 
+#$ -N test_CP2A
 #$ -wd /net/dunham/vol2/Leah/transposons_lab_may2024 
 #$ -o /net/dunham/vol2/Leah/transposons_lab_may2024 
 #$ -e /net/dunham/vol2/Leah/transposons_lab_may2024 
@@ -27,6 +27,7 @@ python3 /net/gs/vol1/home/leaha3/mcclintock/mcclintock.py \
 	-t /net/gs/vol1/home/leaha3/mcclintock/test/sac_cer_te_families.tsv \
 	-1 ${FORWARD} \
 	-2 ${REVERSE} \
-    --resume
+	#run all methods aside from relocate2, which causes problems since the ubuntu update on the cluster
+    -m ngs_te_mapper,ngs_te_mapper2,relocate,temp,temp2,retroseq,popoolationte,popoolationte2,te-locate,teflon,coverage,trimgalore,map_reads,tebreak
 
 conda deactivate
