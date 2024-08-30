@@ -9,6 +9,12 @@ working_directory = arg_list[1]
 transposons_dir = os.path.join(working_directory, "transposons")
 os.makedirs(transposons_dir, exist_ok=True)
 
+#make the error and output directories
+outputs_dir = os.path.join(working_directory, "outputs")
+errors_dir = os.path.join(working_directory, "errors")
+os.makedirs(outputs_dir, exist_ok=True)
+os.makedirs(errors_dir, exist_ok=True)
+
 # Make the sample list, only forward reads
 os.system(f"ls {working_directory}/fastq/*R1_001.fastq.gz > {transposons_dir}/sample_list.txt")
 

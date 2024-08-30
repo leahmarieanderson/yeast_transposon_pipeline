@@ -2,10 +2,6 @@
 #$ -pe serial 5
 #$ -l mfree=16G
 #$ -l h_rt=10:0:0
-#$ -N test_CP2A
-#$ -wd /net/dunham/vol2/Leah/transposons_lab_may2024 
-#$ -o /net/dunham/vol2/Leah/transposons_lab_may2024 
-#$ -e /net/dunham/vol2/Leah/transposons_lab_may2024 
 
 FORWARD=$1
 REVERSE=$2
