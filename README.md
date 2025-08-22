@@ -166,4 +166,77 @@ If you are unable to see your results, try checking to see if you set your work 
 Check out the [Mcclintock Github](https://github.com/bergmanlab/mcclintock) for citation details
 
 ## Usage
-Instructions for usage of the python scripts can be found [here](https://docs.google.com/document/d/1e6qKrCB8HZT34Iz7_1B2XBYpys1BbzvkVvJ8aLG1H-o/edit)
+Start by cloning the yeast_transposon_pipeline(ONLY IF THE REPO IS PUBLIC). You can do this by typing 
+```
+git clone https://github.com/leahmarieanderson/yeast_transposon_pipeline.git
+```
+else, you'll need to just copy the yeast_transposon_pipeline directory from Leah or Zilong.
+
+Make sure that your target destination for your `cp` command is your work directory. It should be the directory that contain your fastq directory as well as your `mcclintock` directory
+```
+└── WorkDirectory <-- *THIS ONE*
+    ├── ...
+    ├── mcclintock
+    └── fastq
+        ├── sample1_R1_001.fastq.gz
+        ├── sample1_R2_001.fastq.gz
+        ├── sample2_R1_001.fastq.gz
+        └── sample2_R2_001.fastq.gz
+```
+Just run this command while on the cluster.
+```
+cp /net/dunham/vol2/Zilong/updating_pipeline_2024/yeast_transposon_pipeline path/to/WorkDirectory
+```
+Your work directory should now have the yeast_transposon_pipeline directory with the main scripts being `output_organizer.py`, `tn_batch_runner.py`, and `transposon_batch.sh`. It should look like this:
+```
+└── WorkDirectory
+    ├── ...
+    ├── yeast_transposon_pipeline
+        ├── ...
+        ├── output_organizer.py
+        ├── tn_batch_runner.py
+        └── transposon_batch.sh
+    ├── mcclintock
+    └── fastq
+        ├── sample1_R1_001.fastq.gz
+        ├── sample1_R2_001.fastq.gz
+        ├── sample2_R1_001.fastq.gz
+        └── sample2_R2_001.fastq.gz
+```
+
+Now all you would have to do is run 
+```
+python3 tn_batch_runner.py path/to/work/directory 
+```
+or if you wanted to run the transposon pipeline of another fastq folder with a different name besides `fastq`, you can add another argument to the python command.
+```
+└── WorkDirectory
+    ├── ...
+    ├── yeast_transposon_pipeline
+    ├── mcclintock
+    └── TE_fastq * different name from "fastq"*
+```
+Then you would run the command with `TE_fastq` as an additional argument.
+```
+python3 tn_batch_runner.py path/to/work/directory TE_fastq
+```
+
+As long as your files are organized in the way that is shown in the images above, this will result in an output that looks like this:
+```
+└── WorkDirectory
+    ├── ...
+    ├── yeast_transposon_pipeline
+    ├── transposons <-- *NEW*
+        ├── sample1 *click into sample1 to view results*
+            ├── sample1_R1_001 *check here for full details on output*
+            ├── logs
+            ├── nonredundant_vcfs *check here for nonredundant-nonreference-siteonly.vcfs*
+            ├── sacCer2 
+            └── snakemake
+        └── sample2
+    ├── mcclintock
+    └── fastq
+```
+You can check out the new `transposons` directory to view your results. You can look into each sample and get full details on each of mcclintock's method's results. The `nonredundant_vcfs` directory contains a collection of all of the nonredundant-nonreference-siteonly vcfs from each of the methods. 
+
+
