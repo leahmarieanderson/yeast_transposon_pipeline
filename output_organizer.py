@@ -1,47 +1,32 @@
 import os
-import sys
+import argparse
 
-directory_list = open("sample_list.txt", "r")
+parser = argparse.ArgumentParser(description="Gather all non-redundant_vcf files from each caller and organize them into a folder")
+parser.add_argument("transposons_dir_path", help="Path to transposons directory")
+args = parser.parse_args()
 
-#you are currently in the "transposons" directory, along with directories for each sample's mcclintock outputs
-os.system("mkdir all_nonredundant_vcfs")
+transposons_path = args.transposons_dir_path
 
-#get the current file path, identify "results" folder for later
-current_dir = os.getcwd()
-result_directory = "results"
+
+directory_list = open(f"{transposons_path}/sample_list.txt", "r")
+
+te_detectors_list = ["ngs_te_mapper", "ngs_te_mapper2", "popoolationte", "popoolationte2", "relocate", "relocate2", "retroseq", "te-locate", "tebreak", "teflon", "temp", "temp2"]
 
 for fastq in directory_list:
-    
     #get name of each sample directory
-    path_names = fastq.split("/")
-    directory1 = path_names[-1][:-21]
-    directory2 = path_names[-1][:-10]
-    target_directory = os.path.join(current_dir, directory1, directory2, result_directory)
+    path_names = fastq.strip().split("/")
+    sample_dir1 = path_names[-1][:-16]
+    sample_dir2 = sample_dir1 + "_R1_001"
+    sample_directory = os.path.join(transposons_path,sample_dir1) # transposons/sample
+    nonredundant_dir = os.path.join(sample_directory, "nonredundant_vcfs")
+    os.makedirs(nonredundant_dir, exist_ok=True)
+    results_directory = os.path.join(sample_directory, sample_dir2, "results") # workdirectory/sample/sample_R1_001/results
 
-    #go into that folder, then go into the folder with the longer name
-    os.chdir(target_directory)
-    os.system("ls > temp.txt")
-    with open("temp.txt", "r") as method_list:
-        for method in method_list:
-            method = method.strip()
-            if method == "temp.txt":
-                continue 
-            method_directory = os.path.join(target_directory, method)
-            os.chdir(method_directory)
-            # try:
-            #     os.system("cp *nonredundant_non-reference.vcf ../../../../all_nonredundant_vcfs")
-            # except:
-            #      print("No vcf in this directory, but no need to worry! Continuing...")
-            #      continue
+    for detector in te_detectors_list:
+        detector_path = os.path.join(results_directory, detector)
+        for file in os.listdir(detector_path):
+            if file.endswith("nonredundant_non-reference_siteonly.vcf"):
+                nonredun_file = os.path.join(detector_path, file)
+                os.system(f"cp {nonredun_file} {nonredundant_dir}")
+                print(f"Copied {nonredun_file} over to {nonredundant_dir}")
 
-            command = "cp *nonredundant_non-reference.vcf ../../../../all_nonredundant_vcfs"
-
-            exit_status = os.system(command)
-
-            if exit_status == 0:
-                print("copied a vcf!")
-            else:
-                print("No vcf in this directory, but no need to worry! Continuing...")
-    
-    #remove temp file with names of all transposon methods
-    os.system(f"rm {target_directory}/temp.txt")

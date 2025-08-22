@@ -6,9 +6,13 @@
 FORWARD=$1
 REVERSE=$2
 NAME=$3
+WORKDIR=$4
 
 mkdir ${NAME}
 cd ${NAME}
+
+# path to mcclintock
+MCDIR=/net/dunham/vol2/Zilong/updating_pipeline_2024/mcclintock
 
 #activate the environment - these two lines allow it to be activated even in a job queueing system
 CONDA_BASE=$(conda info --base)
@@ -16,14 +20,16 @@ source ${CONDA_BASE}/etc/profile.d/conda.sh
 conda activate mcclintock
 
 #run mcclintock with your samples
-python3 /net/gs/vol1/home/leaha3/mcclintock/mcclintock.py \
-	-r /net/gs/vol1/home/leaha3/mcclintock/test/sacCer2.fasta \
-	-c /net/gs/vol1/home/leaha3/mcclintock/test/sac_cer_TE_seqs.fasta \
-	-g /net/gs/vol1/home/leaha3/mcclintock/test/reference_TE_locations.gff \
-	-t /net/gs/vol1/home/leaha3/mcclintock/test/sac_cer_te_families.tsv \
+python3 ${MCDIR}/mcclintock.py \
+	-r ${MCDIR}/test/sacCer2.fasta \
+	-c ${MCDIR}/test/sac_cer_TE_seqs.fasta \
+	-g ${MCDIR}/test/reference_TE_locations.gff \
+	-t ${MCDIR}/test/sac_cer_te_families.tsv \
 	-1 ${FORWARD} \
 	-2 ${REVERSE} \
-	#run all methods aside from relocate2, which causes problems since the ubuntu update on the cluster
-    -m ngs_te_mapper,ngs_te_mapper2,relocate,temp,temp2,retroseq,popoolationte,popoolationte2,te-locate,teflon,coverage,trimgalore,map_reads,tebreak
+	-p 5
+
+# Run the organizer python script to get all non-redundant-non-reference site vcfs into one folder. 
+python3 ${WORKDIR}/yeast_transposon_pipeline/output_organizer.py ${WORKDIR}/transposons
 
 conda deactivate
