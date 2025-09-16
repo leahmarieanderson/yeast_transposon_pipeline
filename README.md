@@ -27,7 +27,7 @@ wget -O Miniforge3.sh
 "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
 bash Miniforge3.sh -b -p "${HOME}/conda" 
 source "${HOME}/conda/etc/profile.d/conda.sh"
-source "${HOME}/conda/etc/profile.d/mamba.sh
+source "${HOME}/conda/etc/profile.d/mamba.sh"
 conda init
 ```
 These lines of code checks what kind of operating system and architecture you have and automatically downloads the conda package for your OS. 
