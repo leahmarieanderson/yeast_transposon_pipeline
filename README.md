@@ -104,8 +104,8 @@ python3 ${MCDIR}/mcclintock.py \
    -c ${MCDIR}/test/sac_cer_TE_seqs.fasta \
    -g ${MCDIR}/test/reference_TE_locations.gff \
    -t ${MCDIR}/test/sac_cer_te_families.tsv \
-   -1 ${MCDIR}/test/SR800842_1.fastq.gz \
-   -2 ${MCDIR}/test/SR800842_2.fastq.gz \
+   -1 ${MCDIR}/test/SRR800842_1.fastq.gz \
+   -2 ${MCDIR}/test/SRR800842_2.fastq.gz \
    -p 5 
 
 conda deactivate
