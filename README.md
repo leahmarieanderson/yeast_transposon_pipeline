@@ -90,6 +90,7 @@ Here is an example script that takes advantage of SnakeMake to speed up our resu
 
 MCDIR=/path/to/mcclintock
 
+# makes a test_output directory in your working directory (which you set as -wd)
 mkdir test_output
 cd test_output
 
@@ -111,7 +112,7 @@ python3 ${MCDIR}/mcclintock.py \
 conda deactivate
 ```
 
-After the script has finished executing, the working installation of mcclintock should produce a results file under: `path/to/test_output/SRR800842_1/results/summary/data/run/summary_report.txt`
+After the script has finished executing, the working installation of mcclintock should produce a results file under: `path/to/work/directory/test_output/SRR800842_1/results/summary/data/run/summary_report.txt`
 It should have something like with perhaps a few differences in numbers: 
 ```
 ----------------------------------
