@@ -57,7 +57,7 @@ def read_vcf(filepath):
     return data_rows, columns
 
 def combine_vcfs(input_dir, min_callers=3, ancestor_sample=None, output_prefix="filtered_te"):
-    """Combine VCF files and filter by minimum number of callers"""
+    """Process VCF files and create filtered output for each sample separately"""
 
     # Find all VCF files
     vcf_pattern = os.path.join(input_dir, "*.vcf")
@@ -68,20 +68,23 @@ def combine_vcfs(input_dir, min_callers=3, ancestor_sample=None, output_prefix="
 
     print(f"Found {len(vcf_files)} VCF files")
 
-    # Read and combine all VCF files
-    all_rows = []
+    # Read and organize all VCF files by sample
+    samples_data = defaultdict(list)
     all_columns = set()
 
     for vcf_file in vcf_files:
         try:
             rows, columns = read_vcf(vcf_file)
-            all_rows.extend(rows)
             all_columns.update(columns)
-            print(f"Processed: {os.path.basename(vcf_file)}")
+
+            if rows:  # Only process if we got data
+                sample_name = rows[0]['sample']  # All rows from same file have same sample
+                samples_data[sample_name].extend(rows)
+                print(f"Processed: {os.path.basename(vcf_file)} (sample: {sample_name})")
         except Exception as e:
             print(f"Error processing {vcf_file}: {e}")
 
-    if not all_rows:
+    if not samples_data:
         raise ValueError("No VCF files could be processed successfully")
 
     # Convert to list and add our custom columns
@@ -93,71 +96,86 @@ def combine_vcfs(input_dir, min_callers=3, ancestor_sample=None, output_prefix="
     if 'location' not in all_columns:
         all_columns.append('location')
 
-    print(f"Total VCF entries processed: {len(all_rows)}")
+    # Get ancestor locations if specified
+    ancestor_locations = set()
+    if ancestor_sample and ancestor_sample in samples_data:
+        print(f"Processing ancestor sample: {ancestor_sample}")
+        ancestor_data = samples_data[ancestor_sample]
 
-    # Filter by minimum number of callers per sample per location
-    # Group by sample and location, count tools
-    sample_location_counts = defaultdict(list)
-    for row in all_rows:
-        key = (row['sample'], row['location'])
-        sample_location_counts[key].append(row)
+        # Group ancestor data by location and count tools
+        ancestor_location_counts = defaultdict(list)
+        for row in ancestor_data:
+            ancestor_location_counts[row['location']].append(row)
 
-    # Filter groups that have at least min_callers
-    filtered_rows = []
-    for key, rows in sample_location_counts.items():
-        if len(rows) >= min_callers:
-            filtered_rows.extend(rows)
-
-    print(f"Entries passing {min_callers}+ caller filter: {len(filtered_rows)}")
-
-    # Handle ancestor filtering if specified
-    if ancestor_sample:
-        # Find high-confidence ancestor locations (those with min_callers+ support)
-        ancestor_locations = set()
-        for key, rows in sample_location_counts.items():
-            sample, location = key
-            if sample == ancestor_sample and len(rows) >= min_callers:
+        # Find high-confidence ancestor locations
+        for location, rows in ancestor_location_counts.items():
+            if len(rows) >= min_callers:
                 ancestor_locations.add(location)
 
-        # Filter out these locations from all samples
-        filtered_rows = [row for row in filtered_rows
-                        if row['location'] not in ancestor_locations]
-        print(f"Filtered out {len(ancestor_locations)} high-confidence ancestral locations")
+        print(f"Found {len(ancestor_locations)} high-confidence ancestral locations to filter out")
 
-    # Write all filtered calls
-    output_all = f"{output_prefix}_all.txt"
-    with open(output_all, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=all_columns, delimiter='\t')
-        writer.writeheader()
-        writer.writerows(filtered_rows)
-    print(f"Wrote all filtered calls to: {output_all}")
+    # Create output directory within the input directory
+    output_dir = os.path.join(input_dir, "filtered_results")
+    os.makedirs(output_dir, exist_ok=True)
+    print(f"Output directory: {output_dir}")
 
-    # Create unique locations (one entry per sample per location)
-    unique_entries = {}
-    for row in filtered_rows:
-        key = (row['sample'], row['location'])
-        if key not in unique_entries:
-            unique_entries[key] = row
+    # Process each sample separately
+    total_samples_processed = 0
+    total_files_written = 0
 
-    unique_rows = list(unique_entries.values())
+    for sample_name, sample_rows in samples_data.items():
+        print(f"\nProcessing sample: {sample_name}")
 
-    output_unique = f"{output_prefix}_unique.txt"
-    with open(output_unique, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=all_columns, delimiter='\t')
-        writer.writeheader()
-        writer.writerows(unique_rows)
-    print(f"Wrote unique filtered calls to: {output_unique}")
+        # Group by location and count tools for this sample
+        location_counts = defaultdict(list)
+        for row in sample_rows:
+            location_counts[row['location']].append(row)
+
+        # Filter by minimum number of callers
+        filtered_rows = []
+        for location, rows in location_counts.items():
+            if len(rows) >= min_callers:
+                # Also filter out ancestor locations if specified
+                if not ancestor_locations or location not in ancestor_locations:
+                    filtered_rows.extend(rows)
+
+        if not filtered_rows:
+            print(f"  No entries passed filtering for {sample_name}")
+            continue
+
+        # Create unique locations (one entry per location for this sample)
+        unique_entries = {}
+        for row in filtered_rows:
+            location = row['location']
+            if location not in unique_entries:
+                unique_entries[location] = row
+
+        unique_rows = list(unique_entries.values())
+
+        # Write sample-specific output file in the output directory
+        # Create filename that starts with sample name
+        if ancestor_sample:
+            output_file = os.path.join(output_dir, f"{sample_name}_transposons_ancfiltered.txt")
+        else:
+            output_file = os.path.join(output_dir, f"{sample_name}_transposons_filtered.txt")
+        with open(output_file, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=all_columns, delimiter='\t')
+            writer.writeheader()
+            writer.writerows(unique_rows)
+
+        print(f"  Wrote {len(unique_rows)} unique locations to: {output_file}")
+        total_samples_processed += 1
+        total_files_written += 1
 
     # Print summary statistics
-    samples = set(row['sample'] for row in all_rows)
-    tools = set(row['tool'] for row in all_rows)
-
+    all_samples = list(samples_data.keys())
     print(f"\nSummary:")
-    print(f"Total VCF entries processed: {len(all_rows)}")
-    print(f"Entries passing {min_callers}+ caller filter: {len(filtered_rows)}")
-    print(f"Unique locations after filtering: {len(unique_rows)}")
-    print(f"Samples processed: {len(samples)}")
-    print(f"Tools used: {len(tools)}")
+    print(f"Total samples found: {len(all_samples)}")
+    print(f"Samples processed: {total_samples_processed}")
+    print(f"Output files written: {total_files_written}")
+    if ancestor_sample:
+        print(f"Ancestor locations filtered out: {len(ancestor_locations)}")
+    print(f"Minimum callers required: {min_callers}")
 
 def main():
     parser = argparse.ArgumentParser(description="Combine VCF files and filter by minimum number of callers")
