@@ -12,7 +12,7 @@ mkdir ${NAME}
 cd ${NAME}
 
 # path to mcclintock
-MCDIR=${WORKDIR}/mcclintock
+MCDIR=${HOME}/mcclintock
 
 #activate the environment - these two lines allow it to be activated even in a job queueing system
 CONDA_BASE=$(conda info --base)

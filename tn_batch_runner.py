@@ -23,7 +23,7 @@ def batchSubmit(work_dir_path):
 			job_name = path_names[-1][:-16]
 			#submit each individual sample job to cluster with qsub
 			os.system(
-				f"qsub -N {job_name} -wd {work_dir_path}/transposons "
+				f"qsub -N sample_{job_name} -wd {work_dir_path}/transposons "
 				f"-o {work_dir_path}/outputs -e {work_dir_path}/errors "
 				f"transposons_batch.sh {fastq} {fastq_prefix}R2_001.fastq.gz {job_name} {work_dir_path}")
 
