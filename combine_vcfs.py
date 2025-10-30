@@ -87,14 +87,29 @@ def combine_vcfs(input_dir, min_callers=3, ancestor_sample=None, output_prefix="
     if not samples_data:
         raise ValueError("No VCF files could be processed successfully")
 
-    # Convert to list and add our custom columns
-    all_columns = list(all_columns)
-    if 'sample' not in all_columns:
-        all_columns.append('sample')
-    if 'tool' not in all_columns:
-        all_columns.append('tool')
-    if 'location' not in all_columns:
-        all_columns.append('location')
+    # Maintain proper VCF column order starting with CHROM
+    standard_vcf_columns = ['#CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO', 'FORMAT']
+    ordered_columns = []
+
+    # Add standard VCF columns first if they exist
+    for col in standard_vcf_columns:
+        if col in all_columns:
+            ordered_columns.append(col)
+
+    # Add any other columns that aren't standard VCF columns
+    for col in all_columns:
+        if col not in standard_vcf_columns and col not in ['sample', 'tool', 'location']:
+            ordered_columns.append(col)
+
+    # Add our custom columns at the end
+    if 'sample' not in ordered_columns:
+        ordered_columns.append('sample')
+    if 'tool' not in ordered_columns:
+        ordered_columns.append('tool')
+    if 'location' not in ordered_columns:
+        ordered_columns.append('location')
+
+    all_columns = ordered_columns
 
     # Get ancestor locations if specified
     ancestor_locations = set()
