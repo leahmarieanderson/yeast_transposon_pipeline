@@ -7,6 +7,7 @@ FORWARD=$1
 REVERSE=$2
 NAME=$3
 WORKDIR=$4
+CURRENT_DIR=$(pwd)
 
 mkdir ${NAME}
 cd ${NAME}
@@ -30,6 +31,6 @@ python3 ${MCDIR}/mcclintock.py \
 	-p 5
 
 # Run the organizer python script to get all non-redundant-non-reference site vcfs into one folder. 
-python3 ${WORKDIR}/yeast_transposon_pipeline/output_organizer.py ${WORKDIR}/transposons
+python3 ${CURRENT_DIR}/yeast_transposon_pipeline/output_organizer.py ${WORKDIR}/transposons
 
 conda deactivate
