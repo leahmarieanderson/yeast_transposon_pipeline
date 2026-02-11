@@ -41,8 +41,14 @@ Creates an `all_nonredundant_vcfs` directory with all VCF files.
 ### 4. Combine VCFs
 Merge all VCF files into a single analysis file:
 ```bash
-python3 combine_vcfs.py /net/dunham/vol2/Leah/yEvo_mica/transposons/all_nonredundant_vcfs
+python3 combine_vcfs.py /net/dunham/vol2/Leah/yEvo_mica/transposons/
 ```
+If you have an ancestor withing this project folder and would like to filter out ancestor transposons, you can add this optional argument:
+```bash
+python3 combine_vcfs.py /net/dunham/vol2/Leah/yEvo_mica/transposons/ -a YMD4612_pink_S1
+```
+Note: when designating the ancestor, you only need the prefix. Do not include "_R1_001...etc"
+
 
 ## Expected Directory Structure
 
