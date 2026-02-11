@@ -22,23 +22,16 @@ Use the batch runner to process all your samples:
 ```bash
 python3 tn_batch_runner.py /net/dunham/vol2/Leah/yEvo_mica/
 ```
-This will submit jobs using `transposons_batch.sh` for each sample pair.
+This will submit jobs using `transposons_batch.sh` for each sample pair. This script should also run output_organizer.py automatically, so if that all ran properly, you will see a folder called "nonredundant_vcfs" in each sample directory when mcclintock is all done.
 
-### 2. Organize Outputs
-After McClintock completes, organize the non-redundant VCF files:
-```bash
-python3 output_organizer.py /net/dunham/vol2/Leah/yEvo_mica/transposons
-```
-This creates `nonredundant_vcfs` folders in each sample directory.
-
-### 3. Collect VCFs
+### 2. Collect VCFs
 Gather all non-redundant VCF files into a single directory:
 ```bash
 python3 collect_vcfs.py /net/dunham/vol2/Leah/yEvo_mica/transposons
 ```
 Creates an `all_nonredundant_vcfs` directory with all VCF files.
 
-### 4. Combine VCFs
+### 3. Combine VCFs
 Merge all VCF files into a single analysis file:
 ```bash
 python3 combine_vcfs.py /net/dunham/vol2/Leah/yEvo_mica/transposons/
