@@ -14,6 +14,7 @@
 ## Pipeline Workflow
 
 I'm goin to use a made-up directory where my data lives as an example, called "/net/dunham/vol2/Leah/yEvo_mica/"
+
 ^within this directory is a "fastq" folder containing all f and r fastq's from the illumina sequencing run.
 
 ### 1. Run McClintock in Batches
