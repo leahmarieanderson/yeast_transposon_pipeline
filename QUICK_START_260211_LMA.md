@@ -1,4 +1,4 @@
-# Yeast Transposon Pipeline - Quick Start Guide
+# Yeast Transposon Pipeline - Quick Start Guide (for Sarah)
 
 ## Prerequisites
 
