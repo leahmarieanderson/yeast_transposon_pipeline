@@ -5,28 +5,58 @@
 
 set -euo pipefail
 
-# Find conda
-if command -v conda >/dev/null 2>&1; then
-    CONDA_EXE="$(command -v conda)"
-elif [ -x "${HOME}/miniforge3/bin/conda" ]; then
-    CONDA_EXE="${HOME}/miniforge3/bin/conda"
-elif [ -x "${HOME}/mambaforge/bin/conda" ]; then
-    CONDA_EXE="${HOME}/mambaforge/bin/conda"
-elif [ -x "${HOME}/miniconda3/bin/conda" ]; then
-    CONDA_EXE="${HOME}/miniconda3/bin/conda"
-elif [ -x "${HOME}/conda/bin/conda" ]; then
-    CONDA_EXE="${HOME}/conda/bin/conda"
-else
-    echo "ERROR: conda not found. Install Miniforge/Miniconda and make sure conda is available." >&2
+
+# ---- Conda setup ----
+
+CONDA_BASE="${CONDA_BASE:-}"
+
+if [ -z "$CONDA_BASE" ]; then
+    # Try common install locations first
+    for candidate in \
+        "$HOME/miniforge3" \
+        "$HOME/mambaforge" \
+        "$HOME/miniconda3" \
+        "$HOME/anaconda3" \
+        "$HOME/conda"
+    do
+        if [ -f "$candidate/etc/profile.d/conda.sh" ]; then
+            CONDA_BASE="$candidate"
+            break
+        fi
+    done
+fi
+
+if [ -z "$CONDA_BASE" ]; then
+    echo "ERROR: Could not find conda automatically." >&2
+    echo "Set CONDA_BASE manually, for example:" >&2
+    echo "  CONDA_BASE=/path/to/conda qsub your_script.sh" >&2
     exit 1
 fi
 
-CONDA_BASE="$("$CONDA_EXE" info --base)"
-source "${CONDA_BASE}/etc/profile.d/conda.sh"
+source "$CONDA_BASE/etc/profile.d/conda.sh"
+
 conda activate mcclintock
+# # Find conda
+# if command -v conda >/dev/null 2>&1; then
+#     CONDA_EXE="$(command -v conda)"
+# elif [ -x "${HOME}/miniforge3/bin/conda" ]; then
+#     CONDA_EXE="${HOME}/miniforge3/bin/conda"
+# elif [ -x "${HOME}/mambaforge/bin/conda" ]; then
+#     CONDA_EXE="${HOME}/mambaforge/bin/conda"
+# elif [ -x "${HOME}/miniconda3/bin/conda" ]; then
+#     CONDA_EXE="${HOME}/miniconda3/bin/conda"
+# elif [ -x "${HOME}/conda/bin/conda" ]; then
+#     CONDA_EXE="${HOME}/conda/bin/conda"
+# else
+#     echo "ERROR: conda not found. Install Miniforge/Miniconda and make sure conda is available." >&2
+#     exit 1
+# fi
+
+# CONDA_BASE="$("$CONDA_EXE" info --base)"
+# source "${CONDA_BASE}/etc/profile.d/conda.sh"
+# conda activate mcclintock
 
 # Optional diagnostics
-echo "Using conda at: $CONDA_EXE"
 echo "Conda base: $CONDA_BASE"
 which conda || true
 which mamba || true
@@ -37,7 +67,7 @@ NAME=$3
 WORKDIR=$4
 CURRENT_DIR=${SGE_O_WORKDIR}
 
-mkdir ${NAME}
+mkdir -p ${NAME}
 cd ${NAME}
 
 # path to mcclintock
@@ -59,6 +89,6 @@ python3 ${MCDIR}/mcclintock.py \
 	-p 5
 
 # Run the organizer python script to get all non-redundant-non-reference site vcfs into one folder. 
-python3 ${CURRENT_DIR}/yeast_transposon_pipeline/output_organizer.py ${WORKDIR}/transposons
+python3 ${CURRENT_DIR}/output_organizer.py ${WORKDIR}/transposons
 
-conda deactivate
+#conda deactivate
