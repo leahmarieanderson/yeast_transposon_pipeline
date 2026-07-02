@@ -23,8 +23,7 @@ rm -rf conda
 Next, run this code in your terminal (you can copy, paste, and run the whole thing or run the code line by line):
 
 ```
-wget -O Miniforge3.sh 
-"https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
+wget -O Miniforge3.sh "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
 bash Miniforge3.sh -b -p "${HOME}/conda" 
 source "${HOME}/conda/etc/profile.d/conda.sh"
 source "${HOME}/conda/etc/profile.d/mamba.sh"
