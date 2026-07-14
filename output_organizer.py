@@ -1,5 +1,6 @@
 import os
 import argparse
+import shutil
 
 parser = argparse.ArgumentParser(description="Gather all non-redundant_vcf files from each caller and organize them into a folder")
 parser.add_argument("transposons_dir_path", help="Path to transposons directory")
@@ -24,9 +25,12 @@ for fastq in directory_list:
 
     for detector in te_detectors_list:
         detector_path = os.path.join(results_directory, detector)
+        if not os.path.isdir(detector_path):
+            print(f"Warning: {detector_path} does not exist. Skipping {detector} for {sample_dir1}.")
+            continue
+
         for file in os.listdir(detector_path):
             if file.endswith("nonredundant_non-reference_siteonly.vcf"):
                 nonredun_file = os.path.join(detector_path, file)
-                os.system(f"cp {nonredun_file} {nonredundant_dir}")
+                shutil.copy2(nonredun_file, nonredundant_dir)
                 print(f"Copied {nonredun_file} over to {nonredundant_dir}")
-
