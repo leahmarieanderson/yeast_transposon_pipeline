@@ -155,6 +155,7 @@ def combine_vcfs(input_dir, min_callers=3, ancestor_sample=None, output_prefix="
                     filtered_rows.extend(rows)
 
         if not filtered_rows:
+            total_samples_processed += 1    
             print(f"  No entries passed filtering for {sample_name}")
             continue
 
